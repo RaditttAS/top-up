@@ -25,10 +25,7 @@ class PemesananController extends Controller
     {
         $pemesanan = Pemesanan::with(['pelanggan', 'produkTopUp'])->latest()->get();
 
-        return view('pemesanan.index', array_merge(
-            $this->formData(),
-            compact('pemesanan')
-        ));
+        return view('pemesanan.index', compact('pemesanan'));
     }
 
     public function create(): View
@@ -45,7 +42,14 @@ class PemesananController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        return $this->createFromSinglePage($request);
+        $validated = $this->validateOrder($request);
+        $produk = ProdukTopUp::findOrFail($validated['produk_topup_id']);
+        $validated['harga_satuan'] = $produk->harga;
+        $validated['total_harga'] = $produk->harga * $validated['jumlah'];
+
+        Pemesanan::create($validated);
+
+        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dibuat.');
     }
 
     public function edit(Pemesanan $pemesanan): View
@@ -56,36 +60,14 @@ class PemesananController extends Controller
         ));
     }
 
-    public function singlePage(): View
+    public function orderForm(): View
     {
-        return view('pemesanan.single-page', $this->formData());
+        return view('pemesanan.order', [
+            'produk' => ProdukTopUp::orderBy('jumlah_diamond')->get(),
+        ]);
     }
 
-    public function singlePageStore(Request $request): RedirectResponse
-    {
-        return $this->createFromSinglePage($request);
-    }
-
-    public function update(Request $request, Pemesanan $pemesanan): RedirectResponse
-    {
-        $validated = $this->validateOrder($request, $pemesanan);
-        $produk = ProdukTopUp::findOrFail($validated['produk_topup_id']);
-        $validated['harga_satuan'] = $produk->harga;
-        $validated['total_harga'] = $produk->harga * $validated['jumlah'];
-
-        $pemesanan->update($validated);
-
-        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil diperbarui.');
-    }
-
-    public function destroy(Pemesanan $pemesanan): RedirectResponse
-    {
-        $pemesanan->delete();
-
-        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dihapus.');
-    }
-
-    private function createFromSinglePage(Request $request): RedirectResponse
+    public function placeOrder(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:100'],
@@ -116,7 +98,7 @@ class PemesananController extends Controller
             $orderCode = 'ORD-' . strtoupper(Str::random(8));
         } while (Pemesanan::where('kode_pesanan', $orderCode)->exists());
 
-        $pemesanan = Pemesanan::create([
+        Pemesanan::create([
             'kode_pesanan' => $orderCode,
             'pelanggan_id' => $pelanggan->id,
             'produk_topup_id' => $validated['produk_topup_id'],
@@ -128,7 +110,26 @@ class PemesananController extends Controller
             'status' => 'menunggu_pembayaran',
         ]);
 
-        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dibuat.');
+        return redirect()->route('home')->with('success', 'Pemesanan berhasil dibuat.');
+    }
+
+    public function update(Request $request, Pemesanan $pemesanan): RedirectResponse
+    {
+        $validated = $this->validateOrder($request, $pemesanan);
+        $produk = ProdukTopUp::findOrFail($validated['produk_topup_id']);
+        $validated['harga_satuan'] = $produk->harga;
+        $validated['total_harga'] = $produk->harga * $validated['jumlah'];
+
+        $pemesanan->update($validated);
+
+        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil diperbarui.');
+    }
+
+    public function destroy(Pemesanan $pemesanan): RedirectResponse
+    {
+        $pemesanan->delete();
+
+        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dihapus.');
     }
 
     private function formData(): array

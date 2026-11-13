@@ -1,6 +1,6 @@
 # Aplikasi Manajemen Top Up Game
 
-Aplikasi Laravel untuk mengelola pelanggan, produk top up, dan pemesanan. Ketiga entitas memiliki fitur CRUD melalui halaman Blade.
+Aplikasi Laravel untuk menampilkan form pemesanan top up serta mengelola data pemesanan, pelanggan, dan produk top up.
 
 ## Rancangan ERD
 
@@ -54,11 +54,13 @@ Konfigurasi default memakai SQLite. Atur `DB_CONNECTION` dan variabel database t
 
 Seeder tiap tabel tersedia secara terpisah di `database/seeders`: `PelangganSeeder`, `ProdukTopUpSeeder`, dan `PemesananSeeder`. `DatabaseSeeder` menjalankannya sesuai urutan dependensi. Untuk menjalankan seeder tertentu, gunakan `php artisan db:seed --class=PelangganSeeder` (ganti nama class sesuai seeder).
 
-## Fitur
+## Halaman aplikasi
 
-- CRUD pelanggan dengan validasi email unik, format email, dan nomor telepon.
-- CRUD produk dengan validasi kode unik, jumlah diamond, dan harga positif.
-- CRUD pemesanan dengan validasi kode unik, relasi yang tersedia, dan pilihan status.
-- Pesan keberhasilan dan kesalahan input ditampilkan pada halaman.
+- `/skinku` menampilkan form pemesanan top up (`/` mengarah ke halaman ini). Produk yang tersedia di form ini berasal dari tabel produk top up.
+- `/pemesanan`, `/pelanggan`, dan `/produk-topup` menyediakan CRUD masing-masing tabel.
+- Pemesanan dari halaman awal akan menyimpan data pelanggan (berdasarkan email) dan pemesanannya.
+- Data pelanggan atau produk yang sudah dipakai dalam pemesanan tidak dapat dihapus.
+
+Setiap form memiliki validasi, dan pesan keberhasilan atau kesalahan ditampilkan pada halaman.
 
 Jalankan pengujian dengan `php artisan test`.

@@ -8,8 +8,8 @@
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand fw-semibold" href="{{ route('pemesanan.index') }}">Nama Store</a>
+        <div class="container flex-wrap">
+            <a class="navbar-brand fw-semibold" href="{{ route('home') }}">SkinKu</a>
         </div>
     </nav>
     <main class="container py-4">
