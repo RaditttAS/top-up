@@ -7,6 +7,7 @@ use App\Models\Pemesanan;
 use App\Models\ProdukTopUp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -24,7 +25,10 @@ class PemesananController extends Controller
     {
         $pemesanan = Pemesanan::with(['pelanggan', 'produkTopUp'])->latest()->get();
 
-        return view('pemesanan.index', compact('pemesanan'));
+        return view('pemesanan.index', array_merge(
+            $this->formData(),
+            compact('pemesanan')
+        ));
     }
 
     public function create(): View
@@ -41,14 +45,7 @@ class PemesananController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $this->validateOrder($request);
-        $produk = ProdukTopUp::findOrFail($validated['produk_topup_id']);
-        $validated['harga_satuan'] = $produk->harga;
-        $validated['total_harga'] = $produk->harga * $validated['jumlah'];
-
-        Pemesanan::create($validated);
-
-        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil ditambahkan.');
+        return $this->createFromSinglePage($request);
     }
 
     public function edit(Pemesanan $pemesanan): View
@@ -57,6 +54,16 @@ class PemesananController extends Controller
             $this->formData(),
             compact('pemesanan')
         ));
+    }
+
+    public function singlePage(): View
+    {
+        return view('pemesanan.single-page', $this->formData());
+    }
+
+    public function singlePageStore(Request $request): RedirectResponse
+    {
+        return $this->createFromSinglePage($request);
     }
 
     public function update(Request $request, Pemesanan $pemesanan): RedirectResponse
@@ -76,6 +83,52 @@ class PemesananController extends Controller
         $pemesanan->delete();
 
         return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dihapus.');
+    }
+
+    private function createFromSinglePage(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nama' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255'],
+            'no_telepon' => ['required', 'string', 'max:20', 'regex:/^[0-9+().\-\s]+$/'],
+            'produk_topup_id' => ['required', 'integer', 'exists:produk_topup,id'],
+            'user_id_game' => ['required', 'string', 'max:30'],
+            'zone_id_game' => ['required', 'string', 'max:20'],
+            'jumlah' => ['required', 'integer', 'min:1', 'max:100000'],
+        ]);
+
+        $produk = ProdukTopUp::findOrFail($validated['produk_topup_id']);
+
+        $pelanggan = Pelanggan::firstOrCreate(
+            ['email' => $validated['email']],
+            [
+                'nama' => $validated['nama'],
+                'no_telepon' => $validated['no_telepon'],
+            ]
+        );
+
+        $pelanggan->update([
+            'nama' => $validated['nama'],
+            'no_telepon' => $validated['no_telepon'],
+        ]);
+
+        do {
+            $orderCode = 'ORD-' . strtoupper(Str::random(8));
+        } while (Pemesanan::where('kode_pesanan', $orderCode)->exists());
+
+        $pemesanan = Pemesanan::create([
+            'kode_pesanan' => $orderCode,
+            'pelanggan_id' => $pelanggan->id,
+            'produk_topup_id' => $validated['produk_topup_id'],
+            'user_id_game' => $validated['user_id_game'],
+            'zone_id_game' => $validated['zone_id_game'],
+            'jumlah' => $validated['jumlah'],
+            'harga_satuan' => $produk->harga,
+            'total_harga' => $produk->harga * $validated['jumlah'],
+            'status' => 'menunggu_pembayaran',
+        ]);
+
+        return redirect()->route('pemesanan.index')->with('success', 'Pemesanan berhasil dibuat.');
     }
 
     private function formData(): array

@@ -12,8 +12,8 @@
         <dt class="col-sm-3">Kode Pemesanan</dt><dd class="col-sm-9">{{ $pemesanan->kode_pesanan }}</dd>
         <dt class="col-sm-3">Pelanggan</dt><dd class="col-sm-9">{{ $pemesanan->pelanggan->nama }} ({{ $pemesanan->pelanggan->email }})</dd>
         <dt class="col-sm-3">Produk</dt><dd class="col-sm-9">{{ $pemesanan->produkTopUp->kode_produk }} - {{ number_format($pemesanan->produkTopUp->jumlah_diamond, 0, ',', '.') }} diamond</dd>
-        <dt class="col-sm-3">User ID Game</dt><dd class="col-sm-9">{{ $pemesanan->user_id_game }}</dd>
-        <dt class="col-sm-3">Zone ID Game</dt><dd class="col-sm-9">{{ $pemesanan->zone_id_game }}</dd>
+        <dt class="col-sm-3">ID</dt><dd class="col-sm-9">{{ $pemesanan->user_id_game }}</dd>
+        <dt class="col-sm-3">Server</dt><dd class="col-sm-9">{{ $pemesanan->zone_id_game }}</dd>
         <dt class="col-sm-3">Jumlah</dt><dd class="col-sm-9">{{ $pemesanan->jumlah }}</dd>
         <dt class="col-sm-3">Harga Satuan</dt><dd class="col-sm-9">Rp{{ number_format($pemesanan->harga_satuan, 0, ',', '.') }}</dd>
         <dt class="col-sm-3">Total Harga</dt><dd class="col-sm-9">Rp{{ number_format($pemesanan->total_harga, 0, ',', '.') }}</dd>

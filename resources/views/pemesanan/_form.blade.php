@@ -29,12 +29,12 @@
 </div>
 <div class="row">
     <div class="col-md-6 mb-3">
-        <label class="form-label" for="user_id_game">User ID Game</label>
+        <label class="form-label" for="user_id_game">ID</label>
         <input class="form-control @error('user_id_game') is-invalid @enderror" id="user_id_game" name="user_id_game" value="{{ old('user_id_game', $pemesanan->user_id_game ?? '') }}" maxlength="30" required>
         @error('user_id_game')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-6 mb-3">
-        <label class="form-label" for="zone_id_game">Zone ID Game</label>
+        <label class="form-label" for="zone_id_game">Server</label>
         <input class="form-control @error('zone_id_game') is-invalid @enderror" id="zone_id_game" name="zone_id_game" value="{{ old('zone_id_game', $pemesanan->zone_id_game ?? '') }}" maxlength="20" required>
         @error('zone_id_game')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>

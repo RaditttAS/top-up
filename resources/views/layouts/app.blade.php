@@ -9,12 +9,7 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fw-semibold" href="{{ route('pemesanan.index') }}">Top Up Game</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="{{ route('pemesanan.index') }}">Pemesanan</a>
-                <a class="nav-link" href="{{ route('produk-topup.index') }}">Produk</a>
-                <a class="nav-link" href="{{ route('pelanggan.index') }}">Pelanggan</a>
-            </div>
+            <a class="navbar-brand fw-semibold" href="{{ route('pemesanan.index') }}">Nama Store</a>
         </div>
     </nav>
     <main class="container py-4">
