@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use App\Rules\KodeProdukRule;
 
 class StoreProdukTopUpRequest extends FormRequest
 {
@@ -20,7 +20,7 @@ class StoreProdukTopUpRequest extends FormRequest
                 'string',
                 'max:20',
                 'unique:produk_topup,kode_produk',
-                Rule::unique('produk_topup', 'kode_produk'),
+                new KodeProdukRule,
             ],
             'jumlah_diamond' => ['required', 'integer', 'min:1', 'max:2147483647'],
             'harga' => ['required', 'integer', 'min:1', 'max:9000000000000'],
