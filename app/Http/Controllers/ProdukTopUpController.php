@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProdukTopUpRequest;
+use App\Http\Requests\UpdateProdukTopUpRequest;
 use App\Models\ProdukTopUp;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProdukTopUpController extends Controller
@@ -29,15 +29,9 @@ class ProdukTopUpController extends Controller
         return view('produk_topup.show', ['produk' => $produk_topup]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreProdukTopUpRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'kode_produk' => ['required', 'string', 'max:20', 'unique:produk_topup,kode_produk'],
-            'jumlah_diamond' => ['required', 'integer', 'min:1', 'max:2147483647'],
-            'harga' => ['required', 'integer', 'min:1', 'max:9000000000000'],
-        ]);
-
-        ProdukTopUp::create($validated);
+        ProdukTopUp::create($request->validated());
 
         return redirect()->route('produk-topup.index')->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -47,15 +41,9 @@ class ProdukTopUpController extends Controller
         return view('produk_topup.edit', ['produk' => $produk_topup]);
     }
 
-    public function update(Request $request, ProdukTopUp $produk_topup): RedirectResponse
+    public function update(UpdateProdukTopUpRequest $request, ProdukTopUp $produk_topup): RedirectResponse
     {
-        $validated = $request->validate([
-            'kode_produk' => ['required', 'string', 'max:20', Rule::unique('produk_topup', 'kode_produk')->ignore($produk_topup->id)],
-            'jumlah_diamond' => ['required', 'integer', 'min:1', 'max:2147483647'],
-            'harga' => ['required', 'integer', 'min:1', 'max:9000000000000'],
-        ]);
-
-        $produk_topup->update($validated);
+        $produk_topup->update($request->validated());
 
         return redirect()->route('produk-topup.index')->with('success', 'Produk berhasil diperbarui.');
     }
